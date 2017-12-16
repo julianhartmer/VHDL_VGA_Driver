@@ -65,49 +65,55 @@ begin
 			wait for clk_period_half;
 	end process;
 
+	r <= pic_y(LOG2_V_RES - 2) when pic_en = '1' else '0';
+	     
+	g <= pic_y(LOG2_V_RES - 2) when pic_en = '1' else '0';
+	    
+	b <= pic_y(LOG2_V_RES - 2) when pic_en = '1' else '0';
+
 	change_colors: process
 	begin
 		reset <= '0';
 		report "starting simulation";
-		r <= '0';
-		g <= '0';
-		b <= '0';
+		--r <= '0';
+		--g <= '0';
+		--b <= '0';
 		wait for 1.1 ms;
 
 		wait for 1.9 ms;
-		r <= '0';
-		g <= '0';
-		b <= '1';
+		--r <= '0';
+		--g <= '0';
+		--b <= '1';
 		wait for 1.9 ms;
-		r <= '0';
-		g <= '1';
-		b <= '0';
+		--r <= '0';
+		--g <= '1';
+		--b <= '0';
 		wait for 1.9 ms;
-		r <= '0';
-		g <= '1';
-		b <= '1';
+		--r <= '0';
+		--g <= '1';
+		--b <= '1';
 		wait for 1.9 ms;
-		r <= '1';
-		g <= '0';
-		b <= '0';
+		--r <= '1';
+		--g <= '0';
+		--b <= '0';
 		wait for 1.9 ms;
-		r <= '1';
-		g <= '0';
-		b <= '1';
+		--r <= '1';
+		--g <= '0';
+		--b <= '1';
 		wait for 1.9 ms;
-		r <= '1';
-		g <= '1';
-		b <= '0';
+		--r <= '1';
+		--g <= '1';
+		--b <= '0';
 		wait for 1.9 ms;
-		r <= '1';
-		g <= '1';
-		b <= '1';
+		--r <= '1';
+		--g <= '1';
+		--b <= '1';
 		wait for 1.9 ms;
 		wait for 1.4 ms;
 
-		r <= '0';
-		g <= '0';
-		b <= '1';
+		--r <= '0';
+		--g <= '0';
+		--b <= '1';
 		wait for 16.65 ms;
 		report "first frame printed!";
 		assert false report "simulation ended" severity failure;

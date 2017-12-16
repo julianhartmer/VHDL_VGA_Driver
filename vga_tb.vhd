@@ -9,7 +9,7 @@ end vga_tb;
 
 architecture behav of vga_tb is
 
-	component vga_controller is
+	component vga is
 		generic(
 			H_RES		: integer := 640;
 			LOG2_H_RES	: integer := 10;
@@ -26,62 +26,30 @@ architecture behav of vga_tb is
 			H_SP_POL	: std_logic := '0';
 			V_SP_POL	: std_logic := '0'
 		);
-		port(	reset, pixel_clk: in std_logic;
-			h_sync, v_sync	: out std_logic;
-			pic_en		: out std_logic;
-			pic_x		: out std_logic_vector(LOG2_H_RES-1 downto 0);
-			pic_y		: out std_logic_vector(LOG2_V_RES-1 downto 0)
+		port(
+			pixel_clk	: in std_logic;
+			reset		: in std_logic;
+			h_sync		: out std_logic;
+			v_sync		: out std_logic;
+			r		: out std_logic;
+			g		: out std_logic;
+			b		: out std_logic
 		);
 	end component;
-	component vga_pic_gen is
-		generic(
-			H_RES		: integer := 640;
-			LOG2_H_RES	: integer := 10;
-			V_RES		: integer := 480;
-			LOG2_V_RES	: integer := 9
-		);
-			
-		port(	pic_en	 	: in std_logic;
-			pic_x		: in std_logic_vector(LOG2_H_RES-1 downto 0);
-			pic_y		: in std_logic_vector(LOG2_V_RES-1 downto 0);
-			r_in		: in std_logic_vector((H_RES*V_RES)-1 downto 0);
-			g_in		: in std_logic_vector((H_RES*V_RES)-1 downto 0);
-			b_in		: in std_logic_vector((H_RES*V_RES)-1 downto 0);
-			r, g, b		: out std_logic
-		);
-	end component;
-	constant H_RES		: integer := 640;
-	constant LOG2_H_RES	: integer := 10;
-	constant V_RES		: integer := 480;
-	constant LOG2_V_RES	: integer := 9;
 
-	signal reset, pixel_clk, h_sync, v_sync, pic_en, r, g, b : std_logic;
-	signal pic_x : std_logic_vector(LOG2_H_RES-1 downto 0);
-	signal pic_y : std_logic_vector(LOG2_V_RES-1 downto 0);
-	signal r_in, g_in, b_in : std_logic_vector((H_RES*V_RES)-1 downto 0);
+	signal reset, pixel_clk, r, g, b, h_sync, v_sync : std_logic;
 
 	constant clk_period_half : time := 20 ns;	-- 25 Mhz
 
 begin
-	y : vga_controller port map(
-		reset		=> reset,
+	v : vga port map(
 		pixel_clk	=> pixel_clk,
+		reset		=> reset,
 		h_sync		=> h_sync,
 		v_sync		=> v_sync,
-		pic_x		=> pic_x,
-		pic_y		=> pic_y,
-		pic_en		=> pic_en
-	);
-	x : vga_pic_gen port map(
-		pic_en	=> pic_en,
-		pic_x	=> pic_x,
-		pic_y	=> pic_y,
-		r_in	=> r_in,
-		g_in	=> g_in,
-		b_in	=> b_in,
-		r	=> r,
-		g	=> g,
-		b	=> b
+		r		=> r,
+		g		=> g,
+		b		=> b
 	);
 
 	CLK_process :process
@@ -95,95 +63,64 @@ begin
 	change_colors: process
 	begin
 		report "Starting Simulation";
-		reset <= '0';
-		wait for 1.1 ms;
-		report "Printing first frame";
-		r_in <= (others => '0');
-		g_in <= (others => '0');
-		b_in <= (others => '0');
-		wait for 16.65 ms;
-		report "First Frame printed!";
+		report "frame 1 starting!";
+		wait for 16.8 ms;
+		report "frame 1 printed!";
+		wait for 16.8 ms;
+		report "frame 2 printed!";
 		assert false report "simulation ended" severity failure;
-
-		r_in <= (others => '0');
-		g_in <= (others => '0');
-		b_in <= (others => '1');
-		wait for 16.65 ms;
-
-		r_in <= (others => '0');
-		g_in <= (others => '1');
-		b_in <= (others => '0');
-		wait for 16.65 ms;
-
-		r_in <= (others => '0');
-		g_in <= (others => '1');
-		b_in <= (others => '1');
-		wait for 16.65 ms;
-
-		r_in <= (others => '1');
-		g_in <= (others => '0');
-		b_in <= (others => '0');
-		wait for 16.65 ms;
-
-		r_in <= (others => '1');
-		g_in <= (others => '0');
-		b_in <= (others => '1');
-		wait for 16.65 ms;
-
-		r_in <= (others => '1');
-		g_in <= (others => '1');
-		b_in <= (others => '0');
-		wait for 16.65 ms;
-
-		r_in <= (others => '1');
-		g_in <= (others => '1');
-		b_in <= (others => '1');
-		wait for 16.65 ms;
+		wait for 16.8 ms;
+		report "frame 3 printed!";
+		wait for 16.8 ms;
+		report "frame 4 printed!";
+		wait for 16.8 ms;
+		report "frame 5 printed!";
 		assert false report "simulation ended" severity failure;
 		
 	end process;
 
 
+	process (pixel_clk)
+	    file file_pointer: text is out "write.txt";
+	    variable line_el: line;
+	begin
 
---	process (pixel_clk)
---	    file file_pointer: text is out "write.txt";
---	    variable line_el: line;
---	begin
---
---	    if rising_edge(pixel_clk) then
---
---		-- Write the time
---		write(line_el, now); -- write the line.
---		write(line_el, String'(":")); -- write the line.
---
---		-- Write the hsync
---		write(line_el, String'(" "));
---		write(line_el, h_sync); -- write the line.
---
---		-- Write the vsync
---		write(line_el, String'(" "));
---		write(line_el, v_sync); -- write the line.
---
---		-- Write the red
---		write(line_el, String'(" "));
---		write(line_el, r); -- write the line.
---		write(line_el, r); -- write the line.
---		write(line_el, r); -- write the line.
---
---		-- Write the green
---		write(line_el, String'(" "));
---		write(line_el, g); -- write the line.
---		write(line_el, g); -- write the line.
---		write(line_el, g); -- write the line.
---
---		-- Write the blue
---		write(line_el, String'(" "));
---		write(line_el, b); -- write the line.
---		write(line_el, b); -- write the line.
---		write(line_el, b); -- write the line.
---
---		writeline(file_pointer, line_el); -- write the contents into the file.
---
---	    end if;
---	end process;
+	    if rising_edge(pixel_clk) then
+
+		-- Write the time
+		write(line_el, now); -- write the line.
+		write(line_el, String'(":")); -- write the line.
+
+		-- Write the hsync
+		write(line_el, String'(" "));
+		write(line_el, h_sync); -- write the line.
+
+		-- Write the vsync
+		write(line_el, String'(" "));
+		write(line_el, v_sync); -- write the line.
+
+		-- Write the red
+		write(line_el, String'(" "));
+		write(line_el, r); -- write the line.
+		write(line_el, r); -- write the line.
+		write(line_el, r); -- write the line.
+
+		-- Write the green
+		write(line_el, String'(" "));
+		write(line_el, g); -- write the line.
+		write(line_el, g); -- write the line.
+		write(line_el, g); -- write the line.
+
+		-- Write the blue
+		write(line_el, String'(" "));
+		write(line_el, b); -- write the line.
+		write(line_el, b); -- write the line.
+		write(line_el, b); -- write the line.
+
+		writeline(file_pointer, line_el); -- write the contents into the file.
+
+	    end if;
+	end process;
+
+
 end;

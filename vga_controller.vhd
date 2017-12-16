@@ -37,7 +37,7 @@ architecture behav of vga_controller is
 
 	type state_type is (H_DIS, H_FP, H_SP, H_BP, V_FP, V_SP, V_BP, OFF);
 
-	signal state : state_type := V_SP;
+	signal state : state_type := V_FP;
 
 	signal h_counter : integer := 0;
 	signal v_counter : integer := 0;
@@ -80,7 +80,7 @@ begin -- behavioral
 
 					h_sync <= not H_SP_POL;
 					v_sync <= not V_SP_POL;
-					if h_counter >= H_FP_PIXELS then
+					if h_counter >= H_FP_PIXELS-1 then
 						state <= H_SP;
 						h_counter <= 0;
 					end if;
@@ -117,8 +117,7 @@ begin -- behavioral
 						end if;
 					end if;
 				when V_FP =>
-					h_counter <= 0;
-					v_counter <= v_counter+1;
+					h_counter <= h_counter + 1;
 
 					pic_en <= '0';
 					pic_y <= (others => '0');
@@ -127,13 +126,17 @@ begin -- behavioral
 					h_sync <= not H_SP_POL;
 					v_sync <= not V_SP_POL;
 
-					if v_counter >= V_FP_PIXELS-1 then
-						state <= V_SP;
-						v_counter <= 0;
+					if h_counter >= H_PIXEL_AMOUNT then
+						v_counter <= v_counter + 1;
+						h_counter <= 0;
+						if v_counter >= V_FP_LINES-1 then
+							state <= V_SP;
+							v_counter <= 0;
+							h_counter <= 0;
+						end if;
 					end if;
 				when V_SP =>
-					h_counter <= 0;
-					v_counter <= v_counter+1;
+					h_counter <= h_counter + 1;
 
 					pic_en <= '0';
 					pic_y <= (others => '0');
@@ -142,13 +145,17 @@ begin -- behavioral
 					h_sync <= not H_SP_POL;
 					v_sync <= V_SP_POL;
 
-					if v_counter >= V_SP_PIXELS-1 then
-						state <= V_BP;
-						v_counter <= 0;
+					if h_counter >= H_PIXEL_AMOUNT then
+						v_counter <= v_counter + 1;
+						h_counter <= 0;
+						if v_counter >= V_SP_LINES-1 then
+							state <= V_BP;
+							v_counter <= 0;
+							h_counter <= 0;
+						end if;
 					end if;
 				when V_BP =>
-					h_counter <= 0;
-					v_counter <= v_counter+1;
+					h_counter <= h_counter + 1;
 
 					pic_en <= '0';
 					pic_y <= (others => '0');
@@ -157,10 +164,14 @@ begin -- behavioral
 					h_sync <= not H_SP_POL;
 					v_sync <= not V_SP_POL;
 
-					if v_counter >= V_BP_PIXELS-1 then
-						state <= H_DIS;
-						v_counter <= 0;
+					if h_counter >= H_PIXEL_AMOUNT then
+						v_counter <= v_counter + 1;
 						h_counter <= 0;
+						if v_counter >= V_BP_LINES-1 then
+							state <= H_DIS;
+							v_counter <= 0;
+							h_counter <= 0;
+						end if;
 					end if;
 				when OFF =>
 					v_counter <= 0;
