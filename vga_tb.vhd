@@ -28,7 +28,6 @@ architecture behav of vga_tb is
 		);
 		port(
 			pixel_clk	: in std_logic;
-			reset		: in std_logic;
 			h_sync		: out std_logic;
 			v_sync		: out std_logic;
 			r		: out std_logic;
@@ -37,14 +36,13 @@ architecture behav of vga_tb is
 		);
 	end component;
 
-	signal reset, pixel_clk, r, g, b, h_sync, v_sync : std_logic;
+	signal pixel_clk, r, g, b, h_sync, v_sync : std_logic;
 
 	constant clk_period_half : time := 20 ns;	-- 25 Mhz
 
 begin
 	v : vga port map(
 		pixel_clk	=> pixel_clk,
-		reset		=> reset,
 		h_sync		=> h_sync,
 		v_sync		=> v_sync,
 		r		=> r,
@@ -68,7 +66,6 @@ begin
 		report "frame 1 printed!";
 		wait for 16.8 ms;
 		report "frame 2 printed!";
-		assert false report "simulation ended" severity failure;
 		wait for 16.8 ms;
 		report "frame 3 printed!";
 		wait for 16.8 ms;
