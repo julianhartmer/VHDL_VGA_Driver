@@ -2,6 +2,12 @@
 # Version: GHDL 0.35-dev (tarball) [Dunoon edition] - GCC back-end code generator
 # Command used to generate this makefile:
 # ghdl --gen-makefile --ieee=synopsys vga_tb
+SRCS := vga_tb.vhd\
+	vga.vhd\
+	vga_controller.vhd\
+	vga_pic_gen.vhd\
+	vga_ram_ctrl.vhd
+OBJS := $(SRCS:vhd=o)
 
 GHDL=ghdl
 GHDLFLAGS= --ieee=synopsys
@@ -11,55 +17,15 @@ GHDLRUNFLAGS= --wave=wave.ghw
 all: vga_tb
 
 # Elaboration target
-vga_tb: /usr/lib/ghdl/v93/std/textio.o /usr/lib/ghdl/v93/std/textio_body.o /usr/lib/ghdl/v93/synopsys/std_logic_1164.o /usr/lib/ghdl/v93/synopsys/std_logic_1164_body.o /usr/lib/ghdl/v93/synopsys/std_logic_textio.o vga_tb.o /usr/lib/ghdl/v93/synopsys/numeric_std.o /usr/lib/ghdl/v93/synopsys/numeric_std-body.o vga.o vga_controller.o vga_pic_gen.o
+vga_tb: $(OBJS)
 	$(GHDL) -e $(GHDLFLAGS) $@
 
 clean:
-	rm *.o
+	rm $(OBJS) vga_tb
 # Run target
 run: vga_tb
 	$(GHDL) -r vga_tb $(GHDLRUNFLAGS)
 
 # Targets to analyze files
-/usr/lib/ghdl/v93/std/textio.o: /usr/lib/ghdl/v93/std/../../src/std/textio.v93
-	@echo "This file was not locally built ($<)"
-	exit 1
-/usr/lib/ghdl/v93/std/textio_body.o: /usr/lib/ghdl/v93/std/../../src/std/textio_body.v93
-	@echo "This file was not locally built ($<)"
-	exit 1
-/usr/lib/ghdl/v93/synopsys/std_logic_1164.o: /usr/lib/ghdl/v93/synopsys/../../src/ieee/std_logic_1164.v93
-	@echo "This file was not locally built ($<)"
-	exit 1
-/usr/lib/ghdl/v93/synopsys/std_logic_1164_body.o: /usr/lib/ghdl/v93/synopsys/../../src/ieee/std_logic_1164_body.v93
-	@echo "This file was not locally built ($<)"
-	exit 1
-/usr/lib/ghdl/v93/synopsys/std_logic_textio.o: /usr/lib/ghdl/v93/synopsys/../../src/synopsys/std_logic_textio.vhdl
-	@echo "This file was not locally built ($<)"
-	exit 1
-vga_tb.o: vga_tb.vhd
+%.o: %.vhd
 	$(GHDL) -a $(GHDLFLAGS) $<
-/usr/lib/ghdl/v93/synopsys/numeric_std.o: /usr/lib/ghdl/v93/synopsys/../../src/ieee/numeric_std.v93
-	@echo "This file was not locally built ($<)"
-	exit 1
-/usr/lib/ghdl/v93/synopsys/numeric_std-body.o: /usr/lib/ghdl/v93/synopsys/../../src/ieee/numeric_std-body.v93
-	@echo "This file was not locally built ($<)"
-	exit 1
-vga.o: vga.vhd
-	$(GHDL) -a $(GHDLFLAGS) $<
-vga_controller.o: vga_controller.vhd
-	$(GHDL) -a $(GHDLFLAGS) $<
-vga_pic_gen.o: vga_pic_gen.vhd
-	$(GHDL) -a $(GHDLFLAGS) $<
-
-# Files dependences
-/usr/lib/ghdl/v93/std/textio.o: 
-/usr/lib/ghdl/v93/std/textio_body.o:  /usr/lib/ghdl/v93/std/textio.o
-/usr/lib/ghdl/v93/synopsys/std_logic_1164.o: 
-/usr/lib/ghdl/v93/synopsys/std_logic_1164_body.o:  /usr/lib/ghdl/v93/synopsys/std_logic_1164.o
-/usr/lib/ghdl/v93/synopsys/std_logic_textio.o:  /usr/lib/ghdl/v93/std/textio.o /usr/lib/ghdl/v93/synopsys/std_logic_1164.o /usr/lib/ghdl/v93/synopsys/std_logic_1164_body.o
-vga_tb.o:  /usr/lib/ghdl/v93/std/textio.o /usr/lib/ghdl/v93/std/textio_body.o /usr/lib/ghdl/v93/synopsys/std_logic_textio.o /usr/lib/ghdl/v93/synopsys/std_logic_1164.o
-/usr/lib/ghdl/v93/synopsys/numeric_std.o:  /usr/lib/ghdl/v93/synopsys/std_logic_1164.o
-/usr/lib/ghdl/v93/synopsys/numeric_std-body.o:  /usr/lib/ghdl/v93/synopsys/numeric_std.o
-vga.o:  /usr/lib/ghdl/v93/synopsys/std_logic_1164.o /usr/lib/ghdl/v93/synopsys/numeric_std.o /usr/lib/ghdl/v93/synopsys/numeric_std-body.o
-vga_controller.o:  /usr/lib/ghdl/v93/synopsys/std_logic_1164.o /usr/lib/ghdl/v93/synopsys/numeric_std.o
-vga_pic_gen.o:  /usr/lib/ghdl/v93/synopsys/std_logic_1164.o /usr/lib/ghdl/v93/synopsys/numeric_std.o
