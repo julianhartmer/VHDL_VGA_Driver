@@ -2,11 +2,12 @@
 # Version: GHDL 0.35-dev (tarball) [Dunoon edition] - GCC back-end code generator
 # Command used to generate this makefile:
 # ghdl --gen-makefile --ieee=synopsys vga_tb
-SRCS := vga_tb.vhd\
+SRCS := vram.vhd\
+	vga_tb.vhd\
 	vga.vhd\
 	vga_controller.vhd\
 	vga_pic_gen.vhd\
-	vga_ram_ctrl.vhd
+	pic_gen.vhd
 OBJS := $(SRCS:vhd=o)
 
 GHDL=ghdl

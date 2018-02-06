@@ -44,8 +44,12 @@ architecture behav of vga_controller is
 
 	signal h_counter : integer := 0;
 	signal v_counter : integer := 0;
+	signal	pic_x_reg : std_logic_vector(LOG2_H_RES-1 downto 0) := (others => '0');
+	signal 	pic_y_reg : std_logic_vector(LOG2_V_RES-1 downto 0) := (others => '0');
 
 begin -- behavioral
+	pic_x <= pic_x_reg;
+	pic_y <= pic_y_reg;
 
 	counters: process (pixel_clk)
 	begin
@@ -84,12 +88,12 @@ begin -- behavioral
 	pic_gen_d: process (pixel_clk)
 	begin
 		if rising_edge(pixel_clk) then
-			pic_y <= (others => '0');
-			pic_x <= (others => '0');
+			pic_y_reg <= (others => '0');
+			pic_x_reg <= (others => '0');
 			pic_en <= '0';
 			if (h_counter >= H_DIS_START) and (h_counter < H_FP_START) and (v_counter < V_FP_START) then
-				pic_y <= std_logic_vector(to_unsigned(v_counter, pic_y'length));
-				pic_x <= std_logic_vector(to_unsigned(h_counter, pic_x'length));
+				pic_y_reg <= std_logic_vector(to_unsigned(v_counter, pic_y'length));
+				pic_x_reg <= std_logic_vector(to_unsigned(h_counter, pic_x'length));
 				pic_en <= '1';
 			end if;
 		end if;

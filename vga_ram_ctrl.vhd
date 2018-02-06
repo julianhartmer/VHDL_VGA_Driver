@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity vga_ram_ctrl is 
+entity vga_line_buffer is 
 	generic(
 		BLOCKSIZE	: integer := 3;
 		BLOCKAMOUNT	: integer := 640;
@@ -19,11 +19,12 @@ entity vga_ram_ctrl is
 		addr_in		: in std_logic_vector(LOG2_BLOCKAMOUNT-1 downto 0);
 		pixel_in	: in std_logic_vector(BLOCKSIZE-1 downto 0)
 	);
-end vga_ram_ctrl;
-architecture behav of vga_ram_ctrl is
-	type bram is array (BLOCKAMOUNT-1 downto 0) of std_logic_vector(BLOCKSIZE-1 downto 0);
+end vga_line_buffer;
+architecture behav of vga_line_buffer is
+	type line_block_ram is array (BLOCKAMOUNT-1 downto 0) of std_logic_vector(BLOCKSIZE-1 downto 0);
 	--signal vram0 : bram := (others => ("101"));
-	signal vram0 : bram := (79 downto 0 => ("000"),
+	signal vram0 : line_block_ram := (
+				79 downto 0 => ("000"),
 				159 downto 80 => ("001"),
 				239 downto 160 => ("010"),
 				319 downto 240 => ("011"),
@@ -31,8 +32,8 @@ architecture behav of vga_ram_ctrl is
 				479 downto 400 => ("101"),
 				559 downto 480 => ("110"),
 				639 downto 560 => ("111"));
-	signal vram1 : bram := (others => ("010"));
-begin
+			);
+	begin
 	process(clk)
 	begin
 		if rising_edge(clk) then
