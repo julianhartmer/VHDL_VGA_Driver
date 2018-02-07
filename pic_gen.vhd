@@ -8,7 +8,8 @@ entity pic_gen is
 		V_RES		: integer := 480;
 		LOG2_V_RES	: integer := 9;
 		PIXEL_SIZE	: integer := 3;
-		LINE_SIZE	: integer := 640*3
+		LINE_SIZE	: integer := 640*3;
+		BYTE_SIZE	: integer := 8
 	);
 	port(	 
 		--ctrl
