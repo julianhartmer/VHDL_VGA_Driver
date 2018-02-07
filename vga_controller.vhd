@@ -23,8 +23,8 @@ entity vga_controller is
 	port(	pixel_clk	: in std_logic;
 		h_sync, v_sync	: out std_logic;
 		pic_en		: out std_logic;
-		pic_x		: out std_logic_vector(LOG2_H_RES-1 downto 0);
-		pic_y		: out std_logic_vector(LOG2_V_RES-1 downto 0)
+		next_pix_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+		frame_fin	: out std_logic
 	);
 end vga_controller;
 architecture behav of vga_controller is
@@ -44,22 +44,20 @@ architecture behav of vga_controller is
 
 	signal h_counter : integer := 0;
 	signal v_counter : integer := 0;
-	signal	pic_x_reg : std_logic_vector(LOG2_H_RES-1 downto 0) := (others => '0');
-	signal 	pic_y_reg : std_logic_vector(LOG2_V_RES-1 downto 0) := (others => '0');
 
 begin -- behavioral
-	pic_x <= pic_x_reg;
-	pic_y <= pic_y_reg;
 
 	counters: process (pixel_clk)
 	begin
 		if rising_edge(pixel_clk) then
+			frame_fin <= '0';
 			h_counter <= h_counter + 1;
 			if h_counter >= H_PIXEL_AMOUNT - 1 then
 				v_counter <= v_counter + 1;
 				h_counter <= 0;
 				if v_counter >= V_LINES_AMOUNT + 1 then
 					v_counter <= 0;
+					frame_fin <= '1';
 				end if;
 			end if;
 		end if;
@@ -88,12 +86,10 @@ begin -- behavioral
 	pic_gen_d: process (pixel_clk)
 	begin
 		if rising_edge(pixel_clk) then
-			pic_y_reg <= (others => '0');
-			pic_x_reg <= (others => '0');
+			next_pix_num <= (others => '0');
 			pic_en <= '0';
 			if (h_counter >= H_DIS_START) and (h_counter < H_FP_START) and (v_counter < V_FP_START) then
-				pic_y_reg <= std_logic_vector(to_unsigned(v_counter, pic_y'length));
-				pic_x_reg <= std_logic_vector(to_unsigned(h_counter, pic_x'length));
+				next_pix_num <= std_logic_vector(to_unsigned(v_counter*H_RES+h_counter, next_pix_num'length));
 				pic_en <= '1';
 			end if;
 		end if;

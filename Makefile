@@ -3,11 +3,10 @@
 # Command used to generate this makefile:
 # ghdl --gen-makefile --ieee=synopsys vga_tb
 SRCS := vram.vhd\
-	vga_tb.vhd\
-	vga.vhd\
 	vga_controller.vhd\
-	vga_pic_gen.vhd\
-	pic_gen.vhd
+	pic_gen.vhd\
+	vga.vhd\
+	vga_tb.vhd
 OBJS := $(SRCS:vhd=o)
 
 GHDL=ghdl

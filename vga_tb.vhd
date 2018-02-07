@@ -15,60 +15,36 @@ architecture behav of vga_tb is
 			LOG2_H_RES	: integer := 10;
 			V_RES		: integer := 480;
 			LOG2_V_RES	: integer := 9;
-			PIXEL_SIZE	: integer := 3;
-			LINE_SIZE	: integer := 640*3;
-			LOG2_LINE_SIZE	: integer := 11;
-
+			PIXEL_SIZE	: integer := 8;
 			H_FP_PIXELS	: integer := 16;
 			H_SP_PIXELS	: integer := 96;
 			H_BP_PIXELS	: integer := 48;
 			V_FP_LINES	: integer := 10;
 			V_SP_LINES	: integer := 2;
 			V_BP_LINES	: integer := 33;
-
 			H_SP_POL	: std_logic := '0';
 			V_SP_POL	: std_logic := '0'
 		);
 		port(
 			pixel_clk	: in std_logic;
-			pixel_line	: in std_logic_vector((PIXEL_SIZE*H_RES)-1 downto 0);
-			line_num	: out std_logic_vector(LOG2_V_RES-1 downto 0);
+			pixel		: in std_logic_vector(PIXEL_SIZE-1 downto 0);
+			pixel_read_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
 			h_sync		: out std_logic;
 			v_sync		: out std_logic;
-			r		: out std_logic;
-			g		: out std_logic;
-			b		: out std_logic
+			r_0		: out std_logic;
+			r_1		: out std_logic;
+			r_2		: out std_logic;
+			g_0		: out std_logic;
+			g_1		: out std_logic;
+			g_2		: out std_logic;
+			b_0		: out std_logic;
+			b_1		: out std_logic
 		);
 	end component;
 
-	component vram is
-		generic(
-			H_RES		: integer := 640;
-			V_RES		: integer := 480;
-			LOG2_V_RES	: integer := 9;
-			PIXEL_SIZE	: integer := 3;
-			LINE_SIZE	: integer := 640*3
-		);
-		port(	 
-			--ctrl
-			clk		: in std_logic;
-
-			-- read port
-			line_num_out	: in std_logic_vector(LOG2_V_RES-1 downto 0);
-			line_out	: out std_logic_vector(LINE_SIZE-1 downto 0);
-
-			-- write ports
-			we		: in std_logic;
-			line_num_in	: in std_logic_vector(LOG2_V_RES-1 downto 0);
-			line_in		: in std_logic_vector(LINE_SIZE-1 downto 0); 
-			line_write_limit: out std_logic_vector(LOG2_V_RES-1 downto 0)
-		);
-	end component;
-
-	signal pixel_clk, r, g, b, h_sync, v_sync : std_logic;
-	signal pixel_line : std_logic_vector((3*640)-1 downto 0) := (others => '1');
-	signal pixel_line_pos : integer range 640-1 downto 0 := 0;
-	signal line_num	: std_logic_vector(9-1 downto 0) := (others => '0');
+	signal pixel_clk, r_0, r_1, r_2, g_0, g_1, g_2, b_0, b_1, h_sync, v_sync : std_logic;
+	signal pixel : std_logic_vector(8-1 downto 0);
+	signal pixel_read_num : std_logic_vector(19-1 downto 0);
 			
 
 	constant clk_period_half : time := 20 ns;	-- 25 Mhz
@@ -76,24 +52,18 @@ architecture behav of vga_tb is
 begin
 	v : vga port map(
 		pixel_clk	=> pixel_clk,
-		pixel_line	=> pixel_line,
-		line_num	=> line_num,
+		pixel		=> pixel,
+		pixel_read_num	=> pixel_read_num,
 		h_sync		=> h_sync,
 		v_sync		=> v_sync,
-		r		=> r,
-		g		=> g,
-		b		=> b
-	);
-
-	--TODO
-	ram : vram port map(
-		clk		=> pixel_clk,
-		line_num_out	=> line_num,
-		line_out	=> pixel_line,
-		we		=> '0',
-		line_num_in	=> line_num,
-		line_in		=> pixel_line,
-		line_write_limit=> open
+		r_0		=> r_0,
+		r_1		=> r_1,
+		r_2		=> r_2,
+		g_0		=> g_0,
+		g_1		=> g_1,
+		g_2		=> g_2,
+		b_0		=> b_0,
+		b_1		=> b_1
 	);
 
 
@@ -157,6 +127,7 @@ begin
 	end process;
 
 
+	pixel <= pixel_read_num(pixel'length-1+10 downto 10);
 	process (pixel_clk)
 	    file file_pointer: text is out "write.txt";
 	    variable line_el: line;
@@ -178,21 +149,21 @@ begin
 
 		-- Write the red
 		write(line_el, String'(" "));
-		write(line_el, r); -- write the line.
-		write(line_el, r); -- write the line.
-		write(line_el, r); -- write the line.
+		write(line_el, r_0); -- write the line.
+		write(line_el, r_1); -- write the line.
+		write(line_el, r_2); -- write the line.
 
 		-- Write the green
 		write(line_el, String'(" "));
-		write(line_el, g); -- write the line.
-		write(line_el, g); -- write the line.
-		write(line_el, g); -- write the line.
+		write(line_el, g_0); -- write the line.
+		write(line_el, g_1); -- write the line.
+		write(line_el, g_2); -- write the line.
 
 		-- Write the blue
 		write(line_el, String'(" "));
-		write(line_el, b); -- write the line.
-		write(line_el, b); -- write the line.
-		write(line_el, b); -- write the line.
+		write(line_el, b_0); -- write the line.
+		write(line_el, b_1); -- write the line.
+		write(line_el, b_1); -- write the line.
 
 		writeline(file_pointer, line_el); -- write the contents into the file.
 

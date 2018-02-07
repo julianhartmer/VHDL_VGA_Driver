@@ -9,9 +9,7 @@ entity vga is
 		LOG2_H_RES	: integer := 10;
 		V_RES		: integer := 480;
 		LOG2_V_RES	: integer := 9;
-		PIXEL_SIZE	: integer := 3;
-		LINE_SIZE	: integer := 640*3;
-		LOG2_LINE_SIZE	: integer := 11;
+		PIXEL_SIZE	: integer := 8;
 
 		H_FP_PIXELS	: integer := 16;
 		H_SP_PIXELS	: integer := 96;
@@ -25,13 +23,22 @@ entity vga is
 	);
 	port(
 		pixel_clk	: in std_logic;
-		pixel_line	: in std_logic_vector((PIXEL_SIZE*H_RES)-1 downto 0);
-		line_num	: out std_logic_vector(LOG2_V_RES-1 downto 0);
+
+		pixel		: in std_logic_vector(PIXEL_SIZE-1 downto 0);
+		pixel_read_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+		frame_fin	: out std_logic;
+
 		h_sync		: out std_logic;
 		v_sync		: out std_logic;
-		r		: out std_logic;
-		g		: out std_logic;
-		b		: out std_logic
+		r_0		: out std_logic;
+		r_1		: out std_logic;
+		r_2		: out std_logic;
+		g_0		: out std_logic;
+		g_1		: out std_logic;
+		g_2		: out std_logic;
+		b_0		: out std_logic;
+		b_1		: out std_logic
+
 	);
 end vga;
 
@@ -58,65 +65,36 @@ architecture behav of vga is
 		port(	pixel_clk	: in std_logic;
 			h_sync, v_sync	: out std_logic;
 			pic_en		: out std_logic;
-			pic_x		: out std_logic_vector(LOG2_H_RES-1 downto 0);
-			pic_y		: out std_logic_vector(LOG2_V_RES-1 downto 0)
-		);
-	end component;
-
-	component vga_pic_gen is
-		generic(
-			H_RES		: integer := H_RES;
-			LOG2_H_RES	: integer := LOG2_H_RES;
-			V_RES		: integer := V_RES;
-			LOG2_V_RES	: integer := LOG2_V_RES
-		);
-			
-		port(	pic_en	 	: in std_logic;
-			pic_x		: in std_logic_vector(LOG2_H_RES-1 downto 0);
-			pic_y		: in std_logic_vector(LOG2_V_RES-1 downto 0);
-			r_in		: in std_logic;
-			g_in		: in std_logic;
-			b_in		: in std_logic;
-			r, g, b		: out std_logic
+			next_pix_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+			frame_fin	: out std_logic
 		);
 	end component;
 
 	signal pic_en : std_logic := '0';
 	signal pic_x : std_logic_vector(LOG2_H_RES-1 downto 0) := (others => '0');
 	signal pic_y : std_logic_vector(LOG2_V_RES-1 downto 0) := (others => '0');
-	signal r_in,g_in,b_in : std_logic;
 
-	signal pixel_line_pos	: integer := 0;
 
 begin -- behavioral
 	ctrl : vga_controller port map(
 		pixel_clk	=> pixel_clk,
 		h_sync		=> h_sync,
 		v_sync		=> v_sync,
-		pic_x		=> pic_x,
-		pic_y		=> pic_y,
-		pic_en		=> pic_en
+		next_pix_num	=> pixel_read_num,
+		pic_en		=> pic_en,
+		frame_fin	=> frame_fin
 	);
 
-	pic : vga_pic_gen port map(
-		pic_en	 	=> pic_en,
-		pic_x		=> pic_x,
-		pic_y		=> pic_y,
-		r_in		=> r_in,
-		g_in		=> g_in,
-		b_in		=> b_in,
-		r		=> r,
-		g		=> g,
-		b		=> b
-	);
 
-	line_num <= pic_y;
-	pixel_line_pos <= to_integer(unsigned(pic_x))*PIXEL_SIZE;
-
-	r_in <= pixel_line(pixel_line_pos);
+	r_0 <= pixel(0) when pic_en='1' else '0';
+	r_1 <= pixel(1) when pic_en='1' else '0';
+	r_2 <= pixel(2) when pic_en='1' else '0';
 	     
-	g_in <= pixel_line(pixel_line_pos+1);
+	g_0 <= pixel(3) when pic_en='1' else '0';
+	g_1 <= pixel(4) when pic_en='1' else '0';
+	g_2 <= pixel(5) when pic_en='1' else '0';
 	    
-	b_in <= pixel_line(pixel_line_pos+2);
+	b_0 <= pixel(6) when pic_en='1' else '0';
+	b_1 <= pixel(7) when pic_en='1' else '0';
 
 end behav;
