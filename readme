@@ -2,7 +2,7 @@ VGA Driver for Zedboard by Digilent. It is capable of running vga with a resolut
 
 The project contains 2 blocks.
 The first block is VGA (vga.vhd). This block drives the VGA pins. The resolution can be changed easily by modifying the generics via VIVADO. The resolution of this block can be increased easily. It sends the synchronisation signals and routes the pixels to the VGA output pins.
-The second block is VRAM (vram.vhd). This is a block ram implementation of the video RAM, each representing one full video frame. It contains 2 seperate brams. The user can read and write one buffer while the other is read by the VGA block. There is a simple protocoll to switch buffers.
+The second block is VRAM (vram.vhd). This is a block ram implementation of the video RAM, each representing one full video frame. It contains 2 seperate brams. The user can read and write one buffer while the other is read by the VGA block. There is a simple protocoll to switch buffers. The VRAM is pixel addressable, each pixel is stored as 3 bits "rgb" (high to low).
 
 You can use the VRAM module and the VGA module independently. By switching out the VRAM for bigger RAM (DDR via AXI).
 
