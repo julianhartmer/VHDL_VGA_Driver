@@ -51,7 +51,6 @@ begin -- behavioral
 	begin
 		if rising_edge(pixel_clk) then
 			frame_fin <= '0';
-			h_counter <= h_counter + 1;
 			if h_counter >= H_PIXEL_AMOUNT - 1 then
 				v_counter <= v_counter + 1;
 				h_counter <= 0;
@@ -59,6 +58,8 @@ begin -- behavioral
 					v_counter <= 0;
 					frame_fin <= '1';
 				end if;
+			else
+				h_counter <= h_counter + 1;
 			end if;
 		end if;
 	end process;

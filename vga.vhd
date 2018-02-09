@@ -2,14 +2,13 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-
 entity vga is
 	generic(
 		H_RES		: integer := 640;
 		LOG2_H_RES	: integer := 10;
 		V_RES		: integer := 480;
 		LOG2_V_RES	: integer := 9;
-		PIXEL_SIZE	: integer := 8;
+		PIXEL_SIZE	: integer := 3;
 
 		H_FP_PIXELS	: integer := 16;
 		H_SP_PIXELS	: integer := 96;
@@ -31,13 +30,13 @@ entity vga is
 		h_sync		: out std_logic;
 		v_sync		: out std_logic;
 		r_0		: out std_logic;
-		r_1		: out std_logic;
-		r_2		: out std_logic;
+--		r_1		: out std_logic;
+--		r_2		: out std_logic;
 		g_0		: out std_logic;
-		g_1		: out std_logic;
-		g_2		: out std_logic;
-		b_0		: out std_logic;
-		b_1		: out std_logic
+--		g_1		: out std_logic;
+--		g_2		: out std_logic;
+		b_0		: out std_logic
+--		b_1		: out std_logic
 
 	);
 end vga;
@@ -74,7 +73,6 @@ architecture behav of vga is
 	signal pic_x : std_logic_vector(LOG2_H_RES-1 downto 0) := (others => '0');
 	signal pic_y : std_logic_vector(LOG2_V_RES-1 downto 0) := (others => '0');
 
-
 begin -- behavioral
 	ctrl : vga_controller port map(
 		pixel_clk	=> pixel_clk,
@@ -85,16 +83,8 @@ begin -- behavioral
 		frame_fin	=> frame_fin
 	);
 
-
 	r_0 <= pixel(0) when pic_en='1' else '0';
-	r_1 <= pixel(1) when pic_en='1' else '0';
-	r_2 <= pixel(2) when pic_en='1' else '0';
-	     
-	g_0 <= pixel(3) when pic_en='1' else '0';
-	g_1 <= pixel(4) when pic_en='1' else '0';
-	g_2 <= pixel(5) when pic_en='1' else '0';
-	    
-	b_0 <= pixel(6) when pic_en='1' else '0';
-	b_1 <= pixel(7) when pic_en='1' else '0';
+	g_0 <= pixel(1) when pic_en='1' else '0';
+	b_0 <= pixel(2) when pic_en='1' else '0';
 
 end behav;

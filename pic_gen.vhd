@@ -8,10 +8,12 @@ entity pic_gen is
 		V_RES		: integer := 480;
 		LOG2_V_RES	: integer := 9;
 		LOG2_H_RES	: integer := 10;
-		PIXEL_SIZE	: integer := 8
+		PIXEL_SIZE	: integer := 3;
+		FRAME_TIME	: integer := 1
 	);
 	port(	 
 		--ctrl
+		pixel_clk	: in std_logic;
 		frame_fin	: in std_logic;	-- vram frame finished
 		frame_switched	: in std_logic;	-- vram switched frames
 		change_frame	: out std_logic;
@@ -21,25 +23,41 @@ entity pic_gen is
 	);
 end pic_gen;
 architecture behav of pic_gen is
-	signal counter : integer range H_RES*V_RES-1 downto 0 := 0;
+	signal counter : std_logic_vector (LOG2_V_RES+LOG2_H_RES-1 downto 0) := (others => '0');
+	signal pix_out : std_logic_vector(PIXEL_SIZE-1 downto 0) := (others => '0');
 begin
-	process(frame_fin)
-		variable frame_counter : integer := 59;
+
+	counter_driver: process(pixel_clk)
 	begin
-		if rising_edge(frame_fin) then
-			change_frame <= '0';
-			counter <= counter-1;
-			if counter = 0 then
-				change_frame <= '1';
+		if rising_edge(pixel_clk) then
+			counter <= std_logic_vector(unsigned(counter) + to_unsigned(1, counter'length));
+		end if;
+	end process;
+
+	frame_counter_driver: process(pixel_clk)
+		variable frame_counter : integer range FRAME_TIME downto 0 := FRAME_TIME;
+	begin
+		if rising_edge(pixel_clk) then
+			if frame_counter = 0 then
 				if frame_switched = '1' then
+					pix_out <= std_logic_vector(unsigned(pix_out) + to_unsigned(1, pix_out'length));
+
+					frame_counter := FRAME_TIME;
 					change_frame <= '0';
-					counter <= 59;
+				else
+					change_frame <= '1';
+				end if;
+			elsif frame_fin = '1' then
+				frame_counter := frame_counter - 1;
+				if frame_counter = FRAME_TIME then
+					frame_counter := FRAME_TIME;
+					change_frame <= '1';
 				end if;
 			end if;
 		end if;
 	end process;
 
-	pixel <= std_logic_vector(to_unsigned(counter, pixel'length));
-	pixel_num <= std_logic_vector(to_unsigned(counter, pixel_num'length));
+	pixel <= pix_out;
+	pixel_num <= counter;
 	we <= '1';
 end behav;
