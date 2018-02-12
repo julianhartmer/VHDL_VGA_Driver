@@ -18,12 +18,14 @@ entity vram is
 		frame_switched	: out std_logic;	-- vram switched frames
 
 		-- read port
-		pix_num_out	: in std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
 		pix_out		: out std_logic_vector(PIXEL_SIZE-1 downto 0);
+		pix_y_out	: in std_logic_vector(LOG2_V_RES-1 downto 0);
+		pix_x_out	: in std_logic_vector(LOG2_H_RES-1 downto 0);
 
 		-- write ports
 		we		: in std_logic;
-		pix_num_in	: in std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+		pix_y_in	: in std_logic_vector(LOG2_V_RES-1 downto 0);
+		pix_x_in	: in std_logic_vector(LOG2_H_RES-1 downto 0);
 		pix_in		: in std_logic_vector(PIXEL_SIZE-1 downto 0)
 	);
 end vram;
@@ -37,12 +39,15 @@ architecture behav of vram is
 	signal frame_1		: frame := (others => (others => '0'));
 	signal frame_1_we	: std_logic := '0';
 	signal frame_1_out	: std_logic_vector(PIXEL_SIZE-1 downto 0);
+	signal pix_num_in, pix_num_out : std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0) := (others => '0');
 
 	-- use bram
 	attribute ram_style : string;
 	attribute ram_style of frame_0 : signal is "block";
 	attribute ram_style of frame_1 : signal is "block";
 begin
+	pix_num_in <= std_logic_vector(to_unsigned(to_integer(unsigned(pix_y_in))*H_RES+to_integer(unsigned(pix_y_in)), pix_num_in'length));
+	pix_num_out <= std_logic_vector(to_unsigned(to_integer(unsigned(pix_y_out))*H_RES+to_integer(unsigned(pix_y_out)), pix_num_in'length));
 	frame_switched_driver : process (clk)
 	begin
 		if rising_edge(clk) then

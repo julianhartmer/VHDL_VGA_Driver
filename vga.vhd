@@ -24,19 +24,15 @@ entity vga is
 		pixel_clk	: in std_logic;
 
 		pixel		: in std_logic_vector(PIXEL_SIZE-1 downto 0);
-		pixel_read_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+		pixel_read_x	: out std_logic_vector(LOG2_H_RES-1 downto 0);
+		pixel_read_y	: out std_logic_vector(LOG2_V_RES-1 downto 0);
 		frame_fin	: out std_logic;
 
 		h_sync		: out std_logic;
 		v_sync		: out std_logic;
 		r_0		: out std_logic;
---		r_1		: out std_logic;
---		r_2		: out std_logic;
 		g_0		: out std_logic;
---		g_1		: out std_logic;
---		g_2		: out std_logic;
 		b_0		: out std_logic
---		b_1		: out std_logic
 
 	);
 end vga;
@@ -64,7 +60,8 @@ architecture behav of vga is
 		port(	pixel_clk	: in std_logic;
 			h_sync, v_sync	: out std_logic;
 			pic_en		: out std_logic;
-			next_pix_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+			next_pix_y_pos	: out std_logic_vector(LOG2_V_RES-1 downto 0);
+			next_pix_x_pos	: out std_logic_vector(LOG2_H_RES-1 downto 0);
 			frame_fin	: out std_logic
 		);
 	end component;
@@ -78,7 +75,8 @@ begin -- behavioral
 		pixel_clk	=> pixel_clk,
 		h_sync		=> h_sync,
 		v_sync		=> v_sync,
-		next_pix_num	=> pixel_read_num,
+		next_pix_y_pos	=> pixel_read_y,
+		next_pix_x_pos	=> pixel_read_x,
 		pic_en		=> pic_en,
 		frame_fin	=> frame_fin
 	);
