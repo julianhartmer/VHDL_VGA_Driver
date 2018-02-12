@@ -28,7 +28,8 @@ architecture behav of vga_tb is
 		port(
 			pixel_clk	: in std_logic;
 			pixel		: in std_logic_vector(PIXEL_SIZE-1 downto 0);
-			pixel_read_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+			pixel_read_x	: out std_logic_vector(LOG2_H_RES-1 downto 0);
+			pixel_read_y	: out std_logic_vector(LOG2_V_RES-1 downto 0);
 			h_sync		: out std_logic;
 			v_sync		: out std_logic;
 			r_0		: out std_logic;
@@ -53,7 +54,8 @@ architecture behav of vga_tb is
 			frame_switched	: in std_logic;	-- vram switched frames
 			change_frame	: out std_logic;
 			pixel		: out std_logic_vector(PIXEL_SIZE-1 downto 0);
-			pixel_num	: out std_logic_vector(LOG2_H_RES+LOG2_V_RES-1 downto 0);
+			pixel_x		: out std_logic_vector(LOG2_H_RES-1 downto 0);
+			pixel_y		: out std_logic_vector(LOG2_V_RES-1 downto 0);
 			we		: out std_logic
 		);
 	end component;
@@ -61,7 +63,8 @@ architecture behav of vga_tb is
 	signal pixel_clk, r_0, g_0, b_0, h_sync, v_sync, frame_fin, frame_switched, change_frame, we : std_logic := '0';
 	signal pixel : std_logic_vector(3-1 downto 0);
 	signal pixel_read_num : std_logic_vector(19-1 downto 0);
-	signal pixel_num : std_logic_vector(19-1 downto 0);
+	signal pixel_x : std_logic_vector(10-1 downto 0);
+	signal pixel_y : std_logic_vector(9-1 downto 0);
 			
 
 	constant clk_period_half : time := 20 ns;	-- 25 Mhz
@@ -70,7 +73,8 @@ begin
 	v : vga port map(
 		pixel_clk	=> pixel_clk,
 		pixel		=> pixel,
-		pixel_read_num	=> pixel_read_num,
+		pixel_read_x	=> pixel_x,
+		pixel_read_y	=> pixel_y,
 		h_sync		=> h_sync,
 		v_sync		=> v_sync,
 		r_0		=> r_0,
@@ -84,7 +88,8 @@ begin
 		frame_switched	=> frame_switched,
 		change_frame	=> change_frame,
 		pixel		=> pixel,
-		pixel_num	=> pixel_num,
+		pixel_x		=> pixel_x,
+		pixel_y		=> pixel_y,
 		we		=> we
 	);
 

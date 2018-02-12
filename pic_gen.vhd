@@ -18,19 +18,31 @@ entity pic_gen is
 		frame_switched	: in std_logic;	-- vram switched frames
 		change_frame	: out std_logic;
 		pixel		: out std_logic_vector(PIXEL_SIZE-1 downto 0);
-		pixel_num	: out std_logic_vector(LOG2_H_RES+LOG2_V_RES-1 downto 0);
+		pixel_x		: out std_logic_vector(LOG2_H_RES-1 downto 0);
+		pixel_y		: out std_logic_vector(LOG2_V_RES-1 downto 0);
 		we		: out std_logic
 	);
 end pic_gen;
 architecture behav of pic_gen is
 	signal counter : std_logic_vector (LOG2_V_RES+LOG2_H_RES-1 downto 0) := (others => '0');
+	signal x_counter : unsigned (LOG2_H_RES-1 downto 0) := (others => '0');
+	signal y_counter : unsigned (LOG2_V_RES-1 downto 0) := (others => '0');
 	signal pix_out : std_logic_vector(PIXEL_SIZE-1 downto 0) := (others => '0');
 begin
 
 	counter_driver: process(pixel_clk)
 	begin
 		if rising_edge(pixel_clk) then
-			counter <= std_logic_vector(unsigned(counter) + to_unsigned(1, counter'length));
+			if x_counter = H_RES then
+				x_counter <= (others => '0');
+				if y_counter = V_RES then
+					y_counter <= (others => '0');
+				else 
+					y_counter <= y_counter + 1;
+				end if;
+			else
+				x_counter <= x_counter+1;
+			end if;
 		end if;
 	end process;
 
@@ -58,6 +70,7 @@ begin
 	end process;
 
 	pixel <= pix_out;
-	pixel_num <= counter;
+	pixel_x <= std_logic_vector(x_counter);
+	pixel_y <= std_logic_vector(y_counter);
 	we <= '1';
 end behav;

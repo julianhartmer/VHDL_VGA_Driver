@@ -46,8 +46,8 @@ architecture behav of vram is
 	attribute ram_style of frame_0 : signal is "block";
 	attribute ram_style of frame_1 : signal is "block";
 begin
-	pix_num_in <= std_logic_vector(to_unsigned(to_integer(unsigned(pix_y_in))*H_RES+to_integer(unsigned(pix_y_in)), pix_num_in'length));
-	pix_num_out <= std_logic_vector(to_unsigned(to_integer(unsigned(pix_y_out))*H_RES+to_integer(unsigned(pix_y_out)), pix_num_in'length));
+	pix_num_in <= std_logic_vector(to_unsigned(to_integer(unsigned(pix_y_in))*H_RES+to_integer(unsigned(pix_x_in)), pix_num_in'length));
+	pix_num_out <= std_logic_vector(to_unsigned(to_integer(unsigned(pix_y_out))*H_RES+to_integer(unsigned(pix_x_out)), pix_num_in'length));
 	frame_switched_driver : process (clk)
 	begin
 		if rising_edge(clk) then
