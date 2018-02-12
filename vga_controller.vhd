@@ -23,7 +23,8 @@ entity vga_controller is
 	port(	pixel_clk	: in std_logic;
 		h_sync, v_sync	: out std_logic;
 		pic_en		: out std_logic;
-		next_pix_num	: out std_logic_vector(LOG2_V_RES+LOG2_H_RES-1 downto 0);
+		next_pix_y_pos	: out std_logic_vector(LOG2_V_RES-1 downto 0);
+		next_pix_x_pos	: out std_logic_vector(LOG2_H_RES-1 downto 0);
 		frame_fin	: out std_logic
 	);
 end vga_controller;
@@ -44,6 +45,7 @@ architecture behav of vga_controller is
 
 	signal h_counter : integer := 0;
 	signal v_counter : integer := 0;
+
 
 begin -- behavioral
 
@@ -87,10 +89,12 @@ begin -- behavioral
 	pic_gen_d: process (pixel_clk)
 	begin
 		if rising_edge(pixel_clk) then
-			next_pix_num <= (others => '0');
+			next_pix_y_pos <= (others => '0');
+			next_pix_x_pos <= (others => '0');
 			pic_en <= '0';
 			if (h_counter >= H_DIS_START) and (h_counter < H_FP_START) and (v_counter < V_FP_START) then
-				next_pix_num <= std_logic_vector(to_unsigned(v_counter*H_RES+h_counter, next_pix_num'length));
+				next_pix_y_pos <= std_logic_vector(to_unsigned(v_counter, next_pix_y_pos'length));
+				next_pix_x_pos <= std_logic_vector(to_unsigned(h_counter, next_pix_x_pos'length));
 				pic_en <= '1';
 			end if;
 		end if;
